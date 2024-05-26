@@ -9,7 +9,7 @@ development:
   <<: *default
   database: nobilis
   username: nobilis_user
-  password: <%= ENV['NOBILIS_DATABASE_PASSWORD'] %>
+  password: 7u23g0OeZNJdTwAmjxqhiBsL6GHQbB9G
 
 test:
   <<: *default
@@ -19,4 +19,4 @@ production:
   <<: *default
   database: nobilis
   username: nobilis_user
-  password: <%= ENV['NOBILIS_DATABASE_PASSWORD'] %>
+  password: 7u23g0OeZNJdTwAmjxqhiBsL6GHQbB9G
