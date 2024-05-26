@@ -6,9 +6,8 @@ class UsersController < ApplicationController
   def create
     user = User.create(user_params)
     if user.valid?
-      payload = { user_id: user.id }
-      token = encode_token(payload)
-      render json: { user: user, token: token }, status: :created
+      session[:user_id] = user.id
+      render json: { user: user, status: :created }
     else
       render json: { error: "Invalid username or password" }, status: :unprocessable_entity
     end
@@ -19,17 +18,25 @@ class UsersController < ApplicationController
   def login
     user = User.find_by(email: params[:email])
     if user && user.authenticate(params[:password])
-      payload = { user_id: user.id }
-      token = encode_token(payload)
-      render json: { user: user, token: token }, status: :ok
+      session[:user_id] = user.id
+      render json: { user: user, status: :ok}
     else
       render json: { error: "Invalid email or password" }, status: :unauthorized
     end
   end
 
+  def logout
+    session.delete :user_id
+    render json: { message: "Logged out" }, status: :ok
+  end
+
 
   def is_user_logged_in
-    render json: { user: @current_user }, status: :ok
+    if @current_user
+      render json: { logged_in: true, user: @current_user }
+    else
+      render json: { logged_in: false }
+    end
   end
 
 
@@ -56,25 +63,16 @@ class UsersController < ApplicationController
   private
 
   def user_params
-    params.require(:user).permit(:username, :email, :password)
+    params.require(:user).permit(:username, :email, :password, :password_confirmation)
   end
 
-   def encode_token(payload)
-    JWT.encode(payload, Rails.application.secrets.secret_key_base)
-  end
 
-  def decode_token(token)
-    JWT.decode(token, Rails.application.secrets.secret_key_base, true, algorithm: 'HS256')[0]
-  end
 
   def authorize_user
-    header = request.headers['Authorization']
-    token = header.split(' ')[1] if header
-    begin
-      decoded_token = decode_token(token)
-      @current_user = User.find(decoded_token['user_id'])
-    rescue
-      render json: { error: 'Unauthorized' }, status: :unauthorized
+    if session[:user_id]
+      @current_user = User.find(session[:user_id])
+    else
+      render json: { error: "Unauthorized" }, status: :unauthorized
     end
   end
 

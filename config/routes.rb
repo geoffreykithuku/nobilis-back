@@ -12,6 +12,7 @@ Rails.application.routes.draw do
   #
   post '/signup', to: 'users#create'
   post '/login', to: 'users#login'
+  delete '/logout', to: 'users#logout'
   get '/fetch_data', to: 'users#fetch_data'
   get '/is_auth', to: 'users#is_user_logged_in'
 end
