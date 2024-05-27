@@ -1,6 +1,5 @@
 class UsersController < ApplicationController
 
-  before_action :authorize_user, except: [:create, :login]
 
   # signup user using username, email and password
   def create
@@ -13,13 +12,12 @@ class UsersController < ApplicationController
     end
   end
 
-
   # login user using email and password
   def login
     user = User.find_by(email: params[:email])
     if user && user.authenticate(params[:password])
       session[:user_id] = user.id
-      render json: { user: user, status: :ok}
+      render json: { user: user, status: :ok }
     else
       render json: { error: "Invalid email or password" }, status: :unauthorized
     end
@@ -30,19 +28,17 @@ class UsersController < ApplicationController
     render json: { message: "Logged out" }, status: :ok
   end
 
-
   def is_user_logged_in
-    if @current_user
-      render json: { logged_in: true, user: @current_user }
+    if logged_in
+      render json: { logged_in: true, user: current_user }, status: :ok
     else
-      render json: { logged_in: false }
+      render json: { logged_in: false, message: "No such user" }, status: :unauthorized
     end
   end
 
-
   # fetch data from cat-fact api
   def fetch_data
-    response = HTTParty.get('https://cat-fact.herokuapp.com/facts')
+    response = HTTParty.get('https://cat-fact.herokuapp.com/facts', verify: false)
     facts = response.parsed_response
 
     formatted_facts = facts.map do |fact|
@@ -56,24 +52,21 @@ class UsersController < ApplicationController
     render json: formatted_facts
   end
 
-
-
-
-
   private
 
   def user_params
     params.require(:user).permit(:username, :email, :password, :password_confirmation)
   end
 
-
-
-  def authorize_user
-    if session[:user_id]
-      @current_user = User.find(session[:user_id])
-    else
-      render json: { error: "Unauthorized" }, status: :unauthorized
-    end
+  def authorized
+    render json: { message: "Please log in" }, status: :unauthorized unless logged_in
   end
 
+  def logged_in
+    !!current_user
+  end
+
+  def current_user
+    @current_user ||= User.find_by(id: session[:user_id])
+  end
 end
