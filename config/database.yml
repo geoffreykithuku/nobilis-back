@@ -2,14 +2,14 @@ default: &default
   adapter: postgresql
   encoding: unicode
   pool: <%= ENV.fetch("RAILS_MAX_THREADS") { 5 } %>
-  host: dpg-cp9kf7v109ks73aa9eb0-a.oregon-postgres.render.com
+  host: dpg-cq8julij1k6c73cmp3qg-a.oregon-postgres.render.com
 
 
 development:
   <<: *default
-  database: nobilis
-  username: nobilis_user
-  password: 7u23g0OeZNJdTwAmjxqhiBsL6GHQbB9G
+  database: nobilis_6d4e
+  username: nobilis_6d4e_user
+  password: RUBxkGXxW6IoLkuT7S3pIlyOXIFa5lxK
 
 test:
   <<: *default
@@ -17,6 +17,6 @@ test:
 
 production:
   <<: *default
-  database: nobilis
-  username: nobilis_user
-  password: 7u23g0OeZNJdTwAmjxqhiBsL6GHQbB9G
+  database: nobilis_6d4e
+  username: nobilis_6d4e_user
+  password: RUBxkGXxW6IoLkuT7S3pIlyOXIFa5lxK
